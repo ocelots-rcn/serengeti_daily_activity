@@ -9,7 +9,7 @@
     let data = {};
     let speciesList = null;
 
-    axios.get('../data/S1-11_filtered.json').then((response) => {
+    axios.get('../data/daily.json').then((response) => {
       data = response.data;
 
       // Populate selection list
@@ -22,9 +22,6 @@
       speciesList = new SlimSelect({
         select: '#Species'
       });
-
-      // Show controls after initialied
-      document.getElementById('FilterWrapper').style.display = 'block';
     });
 
     // Update graph when selections changes
@@ -51,107 +48,52 @@
     }
 
     // Quick load helper
-    const loadGrazers = () => {
-      speciesList.set([
-      'buffalo',
-      'bushbuck',
-      'dikdik',
-      'eland',
-      'elephant',
-      'gazellegrants',
-      'gazellethomsons',
-      'giraffe',
-      'hartebeest',
-      'hippopotamus',
-      'impala',
-      'reedbuck',
-      'rhinoceros',
-      'topi',
-      'warthog',
-      'wildebeest',
-      'zebra'
-      ]);
-    };
+    const quickLoad = (key) => {
+      speciesList.set(data.groups[key]);
+    }
 
-    // Quick load helper
-    const loadPredators = () => {
-      speciesList.set([
-      'aardwolf', 
-      'batearedfox',
-      'caracal',
-      'cheetah',
-      'civet',
-      'genet',
-      'hyenaspotted',
-      'hyenastriped',
-      'jackal',
-      'leopard',
-      'lionfemale',
-      'lionmale',
-      'serval',
-      'wildcat'
-      ]);
-    };
+    const switchTab = (el) => {
+      if(el.id === 'OverviewTab') {
+        document.getElementById('OverviewTab').style['background-color'] = '#EEE';
+        document.getElementById('FiltersTab').style['background-color'] = '#FFF';
+        document.getElementById('Overview').style.display = 'block';
+        document.getElementById('Filters').style.display = 'none';
+      }
+      else {
+        document.getElementById('OverviewTab').style['background-color'] = '#FFF';
+        document.getElementById('FiltersTab').style['background-color'] = '#EEE';
+        document.getElementById('Overview').style.display = 'none';
+        document.getElementById('Filters').style.display = 'block';
+      }
+    }
 
-    // Quick load helper
-    const loadOthers = () => {
-      speciesList.set([
-      'aardvark',
-      'baboon',
-      'bat',
-      'birdother',
-      'cattle',
-      'duiker',
-      'fire',
-      'guineafowl',
-      'hare',
-      'honeybadger',
-      'hyenabrown',
-      'insectspider',
-      'koribustard',
-      'kudu',
-      'lioncub',
-      'mongoose',
-      'monkeyvervet',
-      'ostrich',
-      'otherBird',
-      'pangolin',
-      'porcupine',
-      'reptiles',
-      'rodents',
-      'secretarybird',
-      'steenbok',
-      'vervetmonkey',
-      'vulture',
-      'waterbuck',
-      'wilddog',
-      'zorilla'
-      ]);
-    };
   </script>
 </head>
 
 <body >
-  <div style="padding: 10px">
-    <p style="font-size: 1.4em">Daily Activity Analysis</p>
-    <p>The daily activity graphs are called “violin” plots because of their shape. This graph is useful for seeing how often an animal is observed by the camera traps at different times during the day.</p>
-    <p>In a violin plot, the wider the figure, the more photos have been taken of the given animal at that time of day.</p>
-    <p>You can use the filters to narrow down what photos you are interested in. You can also select multiple species to compare. Species will be plotted alongside each other.</p>
-    <hr>
-    <div style="display: flex;flex-direction: row;">
-      <div style="width: 250px;padding: 5px">
-        <div id="FilterWrapper" style="display: none">
+  <div style="display: flex;flex-direction: row;">
+    <div style="width: 250px;padding: 5px">
+        <div style="display: flex;flex-direction: row;margin-bottom: 5px">
+          <div id="OverviewTab" style="flex: 1;padding: 10px;border: 1px solid #CCC;cursor: pointer;background-color: #EEE" onclick="switchTab(this)">Overview</div>
+          <div id="FiltersTab" style="flex: 1;padding: 10px;border: 1px solid #CCC;cursor: pointer" onclick="switchTab(this)">Filters</div>
+        </div>
+        <div id="Overview">
+          <p style="font-size: 1.2em">Daily Activity Analysis</p>
+          <p>The daily activity graphs are called "violin" plots because of their shape. This graph is useful for seeing how often an animal is observed by the camera traps at different times during the day.</p>
+          <p>In a violin plot, the wider the figure, the more photos have been taken of the given animal at that time of day.</p>
+          <p>You can use the filters to narrow down what photos you are interested in. You can also select multiple species to compare. Species will be plotted alongside each other.</p>
+        </div>
+        <div id="Filters" style="display: none">
           <span style="font-weight: bold">Species</span><br />
           <select id="Species" multiple onChange="rePlot()"></select><br />
           <hr>
           <span style="font-weight: bold">Quick Load</span><br />
-          <input value="Predators" type="button" onClick="loadPredators()" /> <input value="Grazers" type="button" onClick="loadGrazers()" /> <input value="Others" type="button" onClick="loadOthers()" />
+          <input value="Predators" type="button" onClick="quickLoad('predator')" /> <input value="Prey" type="button" onClick="quickLoad('prey')" /> <input value="Other" type="button" onClick="quickLoad('other')" />
           <hr>
           <input value="Clear Species List" type="button" onClick="clearList()" />
         </div>
-      </div>
-      <div id="Plot" style="flex: 1;min-height: 500px"></div>
     </div>
+    <div id="Plot" style="flex: 1;min-height: 500px"></div>
   </div>
 
 </body>
