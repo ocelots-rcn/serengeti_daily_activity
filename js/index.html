@@ -6,94 +6,52 @@
   <link href="./includes/slimselect.min.css" rel="stylesheet">
 
   <script>
-    let data = {};
-    let speciesList = null;
-
-    axios.get('../data/daily.json').then((response) => {
-      data = response.data;
-
-      // Populate selection list
-      let species = document.getElementById('Species');
-      Object.keys(data.species).sort().forEach( (val) => {
-        let newOption = new Option(val, val);
-        species.add(newOption,undefined);
-      });
-
-      speciesList = new SlimSelect({
-        select: '#Species'
-      });
-    });
-
-    // Update graph when selections changes
-    const rePlot = () => {
-      let pdata = [];
-      let selected = speciesList.selected();
-
-      if(selected.length > 0) {
-        selected.forEach( (species) => {
-          let plotd = {
-            y: data.species[species].sort(),
-            name: species,
-            type: 'violin'
-          };
-          pdata.push(plotd);
-        });
-      }
-      Plotly.newPlot('Plot', pdata, {yaxis: {title: 'Time of Day of Observations (24 H)', range: [0, 24], tick0: 0, dtick: 4}, xaxis: {title: 'Species'}});
-    }
-
-    const clearList = () => {
-      speciesList.set(['']);
-    }
-
-    // Quick load helper
-    const quickLoad = (key) => {
-      speciesList.set(data.groups[key]);
-    }
-
     const switchTab = (el) => {
-      if(el.id === 'OverviewTab') {
-        document.getElementById('OverviewTab').style['background-color'] = '#EEE';
-        document.getElementById('FiltersTab').style['background-color'] = '#FFF';
-        document.getElementById('Overview').style.display = 'block';
-        document.getElementById('Filters').style.display = 'none';
-      }
-      else {
-        document.getElementById('OverviewTab').style['background-color'] = '#FFF';
-        document.getElementById('FiltersTab').style['background-color'] = '#EEE';
-        document.getElementById('Overview').style.display = 'none';
-        document.getElementById('Filters').style.display = 'block';
-      }
-    }
+      let tabParent = el.parentElement;
+      let tabName = el.getAttribute("name");
 
+      // Cycle through tabs to change look
+      for (let child of tabParent.children) {
+        el == child ? child.style['background-color'] = '#EEE' : child.style['background-color'] = '#FFF';
+      };
+
+      // Cycle through content divs
+      for (let child of tabParent.parentElement.children) {
+        if(child.getAttribute("name") !== 'tabs') {
+          let divName = child.getAttribute("name");
+          tabName == divName ? child.style.display = 'block' : child.style.display = 'none';
+        }
+      };
+    }
   </script>
 </head>
 
 <body >
   <div style="display: flex;flex-direction: row;">
     <div style="width: 250px;padding: 5px">
-        <div style="display: flex;flex-direction: row;margin-bottom: 5px">
-          <div id="OverviewTab" style="flex: 1;padding: 10px;border: 1px solid #CCC;cursor: pointer;background-color: #EEE" onclick="switchTab(this)">Overview</div>
-          <div id="FiltersTab" style="flex: 1;padding: 10px;border: 1px solid #CCC;cursor: pointer" onclick="switchTab(this)">Filters</div>
+        <div name="tabs" style="display: flex;flex-direction: row;margin-bottom: 5px">
+          <div name="overview" style="flex: 1;padding: 10px;border: 1px solid #CCC;cursor: pointer;background-color: #EEE" onclick="switchTab(this)">Overview</div>
+          <div name="filters" style="flex: 1;padding: 10px;border: 1px solid #CCC;cursor: pointer" onclick="switchTab(this)">Filters</div>
         </div>
-        <div id="Overview">
+        <div name="overview">
           <p style="font-size: 1.2em">Daily Activity Analysis</p>
           <p>The daily activity graphs are called "violin" plots because of their shape. This graph is useful for seeing how often an animal is observed by the camera traps at different times during the day.</p>
           <p>In a violin plot, the wider the figure, the more photos have been taken of the given animal at that time of day.</p>
           <p>You can use the filters to narrow down what photos you are interested in. You can also select multiple species to compare. Species will be plotted alongside each other.</p>
         </div>
-        <div id="Filters" style="display: none">
+        <div name="filters" style="display: none">
           <span style="font-weight: bold">Species</span><br />
-          <select id="Species" multiple onChange="rePlot()"></select><br />
+          <select id="DailySpecies" multiple onChange="dailyPlot()"></select><br />
           <hr>
           <span style="font-weight: bold">Quick Load</span><br />
-          <input value="Predators" type="button" onClick="quickLoad('predator')" /> <input value="Prey" type="button" onClick="quickLoad('prey')" /> <input value="Other" type="button" onClick="quickLoad('other')" />
+          <input value="Predators" type="button" onClick="dailyQuickLoad('predator')" /> <input value="Prey" type="button" onClick="dailyQuickLoad('prey')" /> <input value="Other" type="button" onClick="dailyQuickLoad('other')" />
           <hr>
-          <input value="Clear Species List" type="button" onClick="clearList()" />
+          <input value="Clear Species List" type="button" onClick="dailyClearList()" />
         </div>
     </div>
-    <div id="Plot" style="flex: 1;min-height: 500px"></div>
+    <div id="DailyPlot" style="flex: 1;min-height: 500px"></div>
   </div>
 
 </body>
+  <script src="./daily.js"></script>
 </html>
