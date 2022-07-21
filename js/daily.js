@@ -33,7 +33,7 @@ const dailyPlot = () => {
         pdata.push(plotd);
         });
     }
-    Plotly.newPlot('DailyPlot', pdata, {yaxis: {title: 'Time of Day of Observations (24 H)', range: [0, 24], tick0: 0, dtick: 4}, xaxis: {title: 'Species'}});
+    Plotly.newPlot('DailyPlot', pdata, {yaxis: {title: 'Time of Day of Observations (24 H)', range: [0, 24], tick0: 0, dtick: 4}, xaxis: {title: 'Species'}}, {responsive: true});
 }
 
 const dailyClearList = () => {
